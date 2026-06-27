@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cidade Sports — Presença</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:    #1a3a6b;
+      --navy-lt: #e8f0fb;
+      --green:   #2e7d32;
+      --green-lt:#e8f5e9;
+      --red-lt:  #fce4ec;
+      --red-dk:  #880e4f;
+      --blue-lt: #e3f2fd;
+      --blue-dk: #0d47a1;
+      --surface: #ffffff;
+      --surface-1: #f5f6f8;
+      --border:  #e0e3e8;
+      --text:    #1a1d23;
+      --muted:   #6b7280;
+      --radius:  10px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* ── pages ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── logo ── */
+    .logo { text-align: center; margin-bottom: 2rem; }
+    .logo-icon {
+      width: 68px; height: 68px;
+      background: var(--navy);
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 0.85rem;
+      box-shadow: 0 4px 16px rgba(26,58,107,.25);
+    }
+    .logo-icon svg { width: 38px; height: 38px; }
+    .logo h1 { font-size: 22px; font-weight: 600; color: var(--text); letter-spacing: -.3px; }
+    .logo p  { font-size: 14px; color: var(--muted); margin-top: 3px; }
+
+    /* ── card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ── team selector ── */
+    .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+    .team-btn {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      background: var(--surface);
+      transition: border-color .15s, background .15s;
+    }
+    .team-btn:hover { border-color: var(--navy); }
+    .team-btn.selected { border-color: var(--navy); background: var(--navy-lt); }
+    .team-btn .icon  { font-size: 26px; margin-bottom: 6px; }
+    .team-btn .label { font-size: 14px; font-weight: 500; color: var(--text); }
+
+    /* ── form ── */
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin: 1rem 0 6px;
+    }
+    select, input[type=text] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-family: inherit;
+      background: var(--surface-1);
+      color: var(--text);
+      transition: border-color .15s, box-shadow .15s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    select:focus, input[type=text]:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(26,58,107,.12); background: #fff; }
+
+    .or-divider { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+    .or-divider span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .or-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+
+    /* ── buttons ── */
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 1.25rem;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn-primary:hover  { opacity: .92; }
+    .btn-primary:active { transform: scale(.98); }
+    .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .btn-ghost:hover { background: var(--surface-1); }
+
+    .btn-link {
+      background: none; border: none;
+      font-size: 12px; color: var(--muted);
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-link:hover { color: var(--navy); }
+
+    /* ── success ── */
+    .success-circle {
+      width: 76px; height: 76px;
+      background: var(--green-lt);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 36px;
+    }
+    .success-name { font-size: 20px; font-weight: 600; color: var(--text); text-align: center; margin-bottom: 4px; }
+    .success-sub  { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 1.5rem; }
+
+    /* ── PIN ── */
+    .pin-row { display: flex; gap: 10px; justify-content: center; margin: 1.25rem 0; }
+    .pin-row input {
+      width: 52px; height: 56px;
+      text-align: center; font-size: 22px; font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-1);
+      color: var(--text);
+    }
+    .pin-row input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(26,58,107,.12); }
+    .error-msg { font-size: 13px; color: #c0392b; text-align: center; margin-top: 6px; display: none; }
+
+    /* ── admin ── */
+    .admin-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .admin-header h2 { font-size: 18px; font-weight: 600; color: var(--text); }
+
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
+    .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+    .metric-num { font-size: 26px; font-weight: 600; color: var(--text); }
+    .metric-lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .tabs { display: flex; gap: 4px; background: var(--surface-1); border-radius: var(--radius); padding: 4px; margin-bottom: 1.25rem; }
+    .tab-btn { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-family: inherit; cursor: pointer; border-radius: 7px; color: var(--muted); border: none; background: none; }
+    .tab-btn.active { background: var(--surface); color: var(--text); font-weight: 500; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .filter-row { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-btn { padding: 5px 12px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-family: inherit; cursor: pointer; color: var(--muted); }
+    .filter-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .session-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 10px; }
+    .session-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .session-date { font-size: 13px; font-weight: 500; color: var(--text); }
+    .session-ct   { font-size: 12px; color: var(--muted); }
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { background: var(--surface-1); border: 1px solid var(--border); border-radius: 99px; padding: 3px 10px; font-size: 12px; color: var(--text); }
+
+    .athlete-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .athlete-row:last-child { border-bottom: none; }
+    .athlete-name { font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 7px; }
+    .athlete-ct   { font-size: 13px; color: var(--muted); }
+
+    .badge { display: inline-block; padding: 2px 7px; border-radius: 99px; font-size: 10px; font-weight: 600; letter-spacing: .3px; }
+    .badge-f { background: var(--red-lt);  color: var(--red-dk); }
+    .badge-m { background: var(--blue-lt); color: var(--blue-dk); }
+
+    .roster-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 10px; }
+    .roster-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .roster-title { font-size: 14px; font-weight: 500; color: var(--text); }
+    .member-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .member-row:last-child { border-bottom: none; }
+    .member-name { font-size: 13px; color: var(--text); }
+    .remove-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 18px; line-height: 1; padding: 2px 6px; border-radius: 4px; }
+    .remove-btn:hover { background: var(--red-lt); color: var(--red-dk); }
+
+    .add-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+    .add-row input  { flex: 1; min-width: 140px; }
+    .add-row select { width: auto; }
+
+    .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 2rem 0; }
+
+    .export-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 14px; background: none;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      font-size: 13px; font-family: inherit; color: var(--muted);
+      cursor: pointer; margin-top: 1rem;
+    }
+    .export-btn:hover { background: var(--surface-1); }
+
+    .admin-link { text-align: center; margin-top: 1.5rem; }
+
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      background: #1a1d23; color: #fff; padding: 10px 18px;
+      border-radius: 99px; font-size: 13px;
+      opacity: 0; transition: opacity .3s; pointer-events: none;
+      z-index: 999; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ═══════════════ CHECK-IN ═══════════════ -->
+  <div id="p-checkin" class="page active">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="19" cy="19" r="15" stroke="#fff" stroke-width="2.5"/>
+          <ellipse cx="19" cy="19" rx="7.5" ry="15" stroke="#fff" stroke-width="2.5"/>
+          <line x1="4" y1="19" x2="34" y2="19" stroke="#fff" stroke-width="2.5"/>
+          <line x1="6.5" y1="11" x2="31.5" y2="11" stroke="#fff" stroke-width="1.5"/>
+          <line x1="6.5" y1="27" x2="31.5" y2="27" stroke="#fff" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <h1>Cidade Sports</h1>
+      <p>Registro de presença no treino</p>
+    </div>
+
+    <div class="card">
+      <span class="field-label">Selecione seu time</span>
+      <div class="team-grid" style="margin-top:6px;">
+        <div class="team-btn" id="btn-fem" onclick="selectTeam('Feminino')">
+          <div class="icon">🏐</div>
+          <div class="label">Feminino</div>
+        </div>
+        <div class="team-btn" id="btn-masc" onclick="selectTeam('Masculino')">
+          <div class="icon">🏐</div>
+          <div class="label">Masculino</div>
+        </div>
+      </div>
+
+      <span class="field-label">Seu nome</span>
+      <select id="sel-name" onchange="onSelectChange()">
+        <option value="">— escolha seu nome —</option>
+      </select>
+
+      <div class="or-divider"><hr><span>ou não está na lista?</span><hr></div>
+      <input type="text" id="txt-name" placeholder="Digite seu nome completo" oninput="onTextInput()" />
+
+      <button class="btn-primary" id="btn-submit" onclick="submitCheckin()" disabled>
+        Confirmar presença
+      </button>
+    </div>
+
+    <div class="admin-link">
+      <button class="btn-link" onclick="showPage('p-pin')">Área do líder</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SUCESSO ═══════════════ -->
+  <div id="p-success" class="page">
+    <div style="padding-top:2rem;">
+      <div class="success-circle">✅</div>
+      <p class="success-name" id="succ-name">—</p>
+      <p class="success-sub"  id="succ-sub">—</p>
+      <div class="card" style="text-align:center;">
+        <p style="font-size:14px;color:var(--muted);">Presença registrada com sucesso!</p>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px;">Bom treino! 💪</p>
+      </div>
+      <button class="btn-primary" onclick="resetCheckin()">Novo registro</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PIN ═══════════════ -->
+  <div id="p-pin" class="page">
+    <div style="display:flex;align-items:center;margin-bottom:1.5rem;">
+      <button class="btn-ghost" onclick="showPage('p-checkin')" style="margin-right:auto;">← Voltar</button>
+    </div>
+    <div class="logo" style="margin-bottom:1.5rem;">
+      <h1 style="font-size:18px;">Área do líder</h1>
+      <p>Digite o PIN de acesso</p>
+    </div>
+    <div class="card">
+      <div class="pin-row">
+        <input type="password" maxlength="1" id="pin0" oninput="pinInput(0)" onkeydown="pinKey(event,0)">
+        <input type="password" maxlength="1" id="pin1" oninput="pinInput(1)" onkeydown="pinKey(event,1)">
+        <input type="password" maxlength="1" id="pin2" oninput="pinInput(2)" onkeydown="pinKey(event,2)">
+        <input type="password" maxlength="1" id="pin3" oninput="pinInput(3)" onkeydown="pinKey(event,3)">
+      </div>
+      <p class="error-msg" id="pin-error">PIN incorreto. Tente novamente.</p>
+      <button class="btn-primary" onclick="checkPin()">Entrar</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:12px;">PIN padrão: 1234 — altere no arquivo config.js</p>
+  </div>
+
+  <!-- ═══════════════ ADMIN ═══════════════ -->
+  <div id="p-admin" class="page">
+    <div class="admin-header">
+      <h2>Frequência</h2>
+      <button class="btn-ghost" onclick="showPage('p-checkin')">Sair</button>
+    </div>
+
+    <div class="metric-grid" id="metrics">
+      <div class="metric-card"><div class="metric-num">—</div><div class="metric-lbl">check-ins totais</div></div>
+      <div class="metric-card"><div class="metric-num">—</div><div class="metric-lbl">treinos registrados</div></div>
+      <div class="metric-card"><div class="metric-num">—</div><div class="metric-lbl" style="display:flex;align-items:center;gap:5px;"><span class="badge badge-f">F</span> Feminino</div></div>
+      <div class="metric-card"><div class="metric-num">—</div><div class="metric-lbl" style="display:flex;align-items:center;gap:5px;"><span class="badge badge-m">M</span> Masculino</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-sessions',this)">Por treino</button>
+      <button class="tab-btn"        onclick="switchTab('tab-athletes',this)">Por atleta</button>
+      <button class="tab-btn"        onclick="switchTab('tab-roster',this)">Elenco</button>
+    </div>
+
+    <!-- Por treino -->
+    <div id="tab-sessions" class="tab-pane active">
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterSet('session','Todos',this)">Todos</button>
+        <button class="filter-btn"        onclick="filterSet('session','Feminino',this)">Feminino</button>
+        <button class="filter-btn"        onclick="filterSet('session','Masculino',this)">Masculino</button>
+      </div>
+      <div id="sessions-list"><p class="empty">Carregando...</p></div>
+      <button class="export-btn" onclick="exportCSV()">
+        ⬇ Exportar CSV
+      </button>
+    </div>
+
+    <!-- Por atleta -->
+    <div id="tab-athletes" class="tab-pane">
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterSet('athlete','Todos',this)">Todos</button>
+        <button class="filter-btn"        onclick="filterSet('athlete','Feminino',this)">Feminino</button>
+        <button class="filter-btn"        onclick="filterSet('athlete','Masculino',this)">Masculino</button>
+      </div>
+      <div class="card" id="athletes-list"><p class="empty">Carregando...</p></div>
+    </div>
+
+    <!-- Elenco -->
+    <div id="tab-roster" class="tab-pane">
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterSet('roster','Todos',this)">Todos</button>
+        <button class="filter-btn"        onclick="filterSet('roster','Feminino',this)">Feminino</button>
+        <button class="filter-btn"        onclick="filterSet('roster','Masculino',this)">Masculino</button>
+      </div>
+      <div id="roster-list"></div>
+      <div class="card" style="margin-top:10px;">
+        <span class="field-label" style="margin-top:0;">Adicionar atleta</span>
+        <div class="add-row">
+          <input type="text" id="new-name" placeholder="Nome completo" />
+          <select id="new-team">
+            <option value="Feminino">Feminino</option>
+            <option value="Masculino">Masculino</option>
+          </select>
+          <button class="btn-ghost" onclick="addMember()">Adicionar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<div id="toast" class="toast"></div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp }          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, setDoc, deleteDoc, onSnapshot, query, orderBy }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ═══════════════════════════════════════════════════
+  //  🔧 COLE AQUI AS SUAS CREDENCIAIS DO FIREBASE
+  // ═══════════════════════════════════════════════════
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyBdb4rQZCYr7DlCPEwjkVPvlnqk4-kEF6wCOLE_AQUI_SUA_apiKey",
+    authDomain:        "time-volei-cidade-sports.firebaseapp.com",
+    projectId:         "time-volei-cidade-sports",
+    storageBucket:     "time-volei-cidade-sports.firebasestorage.app",
+    messagingSenderId: "145593314374",
+    appId:             "145593314374"
+  };
+  // ═══════════════════════════════════════════════════
+
+  const ADMIN_PIN = "1234"; // ← altere aqui para mudar o PIN
+
+  const DEFAULT_ROSTER = {
+    Feminino:  ["Ana Luiza","Beatriz","Camila","Fernanda","Gabriela","Isabela","Júlia","Larissa","Mariana","Natália"],
+    Masculino: ["Carlos","Daniel","Eduardo","Felipe","Guilherme","Henrique","Igor","João","Lucas","Mateus"]
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // ─── state ───
+  let checkins = [];
+  let roster   = { Feminino: [], Masculino: [] };
+  let filters  = { session: "Todos", athlete: "Todos", roster: "Todos" };
+  let selectedTeam = null;
+
+  // ─── expose globals ───
+  window.ADMIN_PIN     = ADMIN_PIN;
+  window.selectTeam    = selectTeam;
+  window.onSelectChange= onSelectChange;
+  window.onTextInput   = onTextInput;
+  window.submitCheckin = submitCheckin;
+  window.resetCheckin  = resetCheckin;
+  window.showPage      = showPage;
+  window.pinInput      = pinInput;
+  window.pinKey        = pinKey;
+  window.checkPin      = checkPin;
+  window.switchTab     = switchTab;
+  window.filterSet     = filterSet;
+  window.exportCSV     = exportCSV;
+  window.addMember     = addMember;
+  window.removeMember  = removeMember;
+
+  // ─── init ───
+  async function init() {
+    await loadRoster();
+    listenCheckins();
+  }
+
+  // ══════════════ ROSTER ══════════════
+  async function loadRoster() {
+    const snap = await getDocs(collection(db, "roster"));
+    if (snap.empty) {
+      // primeiro uso: salva elenco padrão
+      for (const team of ["Feminino","Masculino"]) {
+        for (const name of DEFAULT_ROSTER[team]) {
+          await setDoc(doc(db, "roster", `${team}_${name}`), { name, team });
+        }
+      }
+      roster = JSON.parse(JSON.stringify(DEFAULT_ROSTER));
+    } else {
+      roster = { Feminino: [], Masculino: [] };
+      snap.forEach(d => {
+        const { name, team } = d.data();
+        if (roster[team]) roster[team].push(name);
+      });
+    }
+  }
+
+  async function addMember() {
+    const name = document.getElementById("new-name").value.trim();
+    const team = document.getElementById("new-team").value;
+    if (!name) return;
+    if (roster[team].includes(name)) { showToast("Atleta já cadastrado."); return; }
+    await setDoc(doc(db, "roster", `${team}_${name}`), { name, team });
+    roster[team].push(name);
+    document.getElementById("new-name").value = "";
+    renderRoster();
+    showToast("Atleta adicionado!");
+  }
+
+  async function removeMember(team, name) {
+    await deleteDoc(doc(db, "roster", `${team}_${name}`));
+    roster[team] = roster[team].filter(x => x !== name);
+    renderRoster();
+    showToast("Atleta removido.");
+  }
+
+  // ══════════════ CHECKINS ══════════════
+  function listenCheckins() {
+    const q = query(collection(db, "checkins"), orderBy("ts", "desc"));
+    onSnapshot(q, snap => {
+      checkins = [];
+      snap.forEach(d => checkins.push({ id: d.id, ...d.data() }));
+      if (document.getElementById("p-admin").classList.contains("active")) renderAdmin();
+    });
+  }
+
+  async function submitCheckin() {
+    const name = getSelectedName();
+    if (!selectedTeam || !name) return;
+    const btn = document.getElementById("btn-submit");
+    btn.innerHTML = '<span class="spinner"></span>Registrando…';
+    btn.disabled = true;
+    const now = new Date();
+    try {
+      await addDoc(collection(db, "checkins"), {
+        name,
+        team: selectedTeam,
+        ts:   now.toISOString(),
+        date: now.toLocaleDateString("pt-BR"),
+        time: now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+      });
+      document.getElementById("succ-name").textContent = name;
+      document.getElementById("succ-sub").textContent  =
+        `${selectedTeam} · ${now.toLocaleDateString("pt-BR")} ${now.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}`;
+      showPage("p-success");
+    } catch(e) {
+      showToast("Erro ao registrar. Verifique a conexão.");
+      btn.textContent = "Confirmar presença";
+      btn.disabled = false;
+    }
+  }
+
+  // ══════════════ CHECKIN UI ══════════════
+  function selectTeam(team) {
+    selectedTeam = team;
+    document.getElementById("btn-fem").classList.toggle("selected",  team === "Feminino");
+    document.getElementById("btn-masc").classList.toggle("selected", team === "Masculino");
+    const sel = document.getElementById("sel-name");
+    sel.innerHTML = '<option value="">— escolha seu nome —</option>';
+    [...(roster[team] || [])].sort().forEach(n => {
+      const o = document.createElement("option"); o.value = n; o.textContent = n; sel.appendChild(o);
+    });
+    document.getElementById("txt-name").value = "";
+    updateSubmit();
+  }
+
+  function onSelectChange() {
+    if (document.getElementById("sel-name").value) document.getElementById("txt-name").value = "";
+    updateSubmit();
+  }
+  function onTextInput() {
+    if (document.getElementById("txt-name").value.trim()) document.getElementById("sel-name").value = "";
+    updateSubmit();
+  }
+  function getSelectedName() {
+    return document.getElementById("sel-name").value || document.getElementById("txt-name").value.trim();
+  }
+  function updateSubmit() {
+    document.getElementById("btn-submit").disabled = !(selectedTeam && getSelectedName());
+  }
+  function resetCheckin() {
+    selectedTeam = null;
+    document.getElementById("btn-fem").classList.remove("selected");
+    document.getElementById("btn-masc").classList.remove("selected");
+    document.getElementById("sel-name").innerHTML = '<option value="">— escolha seu nome —</option>';
+    document.getElementById("txt-name").value = "";
+    document.getElementById("btn-submit").textContent = "Confirmar presença";
+    document.getElementById("btn-submit").disabled = true;
+    showPage("p-checkin");
+  }
+
+  // ══════════════ PIN ══════════════
+  function pinInput(i) {
+    if (document.getElementById("pin"+i).value && i < 3) document.getElementById("pin"+(i+1)).focus();
+  }
+  function pinKey(e, i) {
+    if (e.key === "Backspace" && !document.getElementById("pin"+i).value && i > 0) document.getElementById("pin"+(i-1)).focus();
+  }
+  function checkPin() {
+    const pin = [0,1,2,3].map(i => document.getElementById("pin"+i).value).join("");
+    if (pin === ADMIN_PIN) {
+      document.getElementById("pin-error").style.display = "none";
+      [0,1,2,3].forEach(i => document.getElementById("pin"+i).value = "");
+      renderAdmin();
+      showPage("p-admin");
+    } else {
+      document.getElementById("pin-error").style.display = "block";
+      [0,1,2,3].forEach(i => document.getElementById("pin"+i).value = "");
+      document.getElementById("pin0").focus();
+    }
+  }
+
+  // ══════════════ PAGES & TABS ══════════════
+  function showPage(id) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
+  function switchTab(id, btn) {
+    document.querySelectorAll(".tab-pane").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    btn.classList.add("active");
+  }
+  function filterSet(type, val, btn) {
+    filters[type] = val;
+    btn.closest(".filter-row").querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    if (type === "session") renderSessions();
+    if (type === "athlete") renderAthletes();
+    if (type === "roster")  renderRoster();
+  }
+
+  // ══════════════ ADMIN RENDER ══════════════
+  function renderAdmin() {
+    const total = checkins.length;
+    const fem   = checkins.filter(x => x.team === "Feminino").length;
+    const masc  = checkins.filter(x => x.team === "Masculino").length;
+    const days  = new Set(checkins.map(x => x.date)).size;
+    document.getElementById("metrics").innerHTML = `
+      <div class="metric-card"><div class="metric-num">${total}</div><div class="metric-lbl">check-ins totais</div></div>
+      <div class="metric-card"><div class="metric-num">${days}</div><div class="metric-lbl">treinos registrados</div></div>
+      <div class="metric-card"><div class="metric-num">${fem}</div><div class="metric-lbl" style="display:flex;align-items:center;gap:5px;"><span class="badge badge-f">F</span> Feminino</div></div>
+      <div class="metric-card"><div class="metric-num">${masc}</div><div class="metric-lbl" style="display:flex;align-items:center;gap:5px;"><span class="badge badge-m">M</span> Masculino</div></div>
+    `;
+    renderSessions();
+    renderAthletes();
+    renderRoster();
+  }
+
+  function renderSessions() {
+    const f = filters.session;
+    const c = checkins.filter(x => f === "Todos" || x.team === f);
+    const byDate = {};
+    c.forEach(x => { if (!byDate[x.date]) byDate[x.date] = []; byDate[x.date].push(x); });
+    const dates = Object.keys(byDate).sort((a,b) =>
+      new Date(b.split("/").reverse().join("-")) - new Date(a.split("/").reverse().join("-"))
+    );
+    const el = document.getElementById("sessions-list");
+    if (!dates.length) { el.innerHTML = '<p class="empty">Nenhum treino registrado ainda.</p>'; return; }
+    el.innerHTML = dates.map(d => {
+      const entries = byDate[d];
+      const chips = entries.map(e =>
+        `<span class="chip">${e.name} <span style="opacity:.55;font-size:10px;">${e.team[0]}</span></span>`
+      ).join("");
+      return `<div class="session-card">
+        <div class="session-hd">
+          <span class="session-date">${d}</span>
+          <span class="session-ct">${entries.length} presente${entries.length > 1 ? "s" : ""}</span>
+        </div>
+        <div class="chip-wrap">${chips}</div>
+      </div>`;
+    }).join("");
+  }
+
+  function renderAthletes() {
+    const f = filters.athlete;
+    const c = checkins.filter(x => f === "Todos" || x.team === f);
+    const byName = {};
+    c.forEach(x => {
+      const k = x.name + "|" + x.team;
+      if (!byName[k]) byName[k] = { name: x.name, team: x.team, count: 0 };
+      byName[k].count++;
+    });
+    const sorted = Object.values(byName).sort((a,b) => b.count - a.count);
+    const el = document.getElementById("athletes-list");
+    if (!sorted.length) { el.innerHTML = '<p class="empty">Nenhum dado ainda.</p>'; return; }
+    el.innerHTML = sorted.map(a =>
+      `<div class="athlete-row">
+        <span class="athlete-name">${a.name} <span class="badge ${a.team==="Feminino"?"badge-f":"badge-m"}">${a.team[0]}</span></span>
+        <span class="athlete-ct">${a.count} treino${a.count !== 1 ? "s" : ""}</span>
+      </div>`
+    ).join("");
+  }
+
+  function renderRoster() {
+    const f = filters.roster;
+    const teams = f === "Todos" ? ["Feminino","Masculino"] : [f];
+    document.getElementById("roster-list").innerHTML = teams.map(t => {
+      const members = [...(roster[t] || [])].sort();
+      return `<div class="roster-card">
+        <div class="roster-hd">
+          <span class="roster-title">${t}</span>
+          <span class="badge ${t==="Feminino"?"badge-f":"badge-m"}">${members.length} atleta${members.length!==1?"s":""}</span>
+        </div>
+        ${members.map(m => `
+          <div class="member-row">
+            <span class="member-name">${m}</span>
+            <button class="remove-btn" onclick="removeMember('${t}','${m}')" title="Remover">×</button>
+          </div>`).join("")}
+        ${members.length === 0 ? '<p class="empty" style="padding:0.5rem 0;">Nenhum atleta cadastrado.</p>' : ""}
+      </div>`;
+    }).join("");
+  }
+
+  // ══════════════ EXPORT ══════════════
+  function exportCSV() {
+    const rows = [["Nome","Time","Data","Hora"]];
+    [...checkins].reverse().forEach(c => rows.push([c.name, c.team, c.date, c.time]));
+    const csv = rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = "data:text/csv;charset=utf-8,\uFEFF" + encodeURIComponent(csv);
+    a.download = "frequencia_cidade_sports.csv";
+    a.click();
+    showToast("CSV exportado!");
+  }
+
+  // ══════════════ TOAST ══════════════
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2800);
+  }
+
+  init();
+</script>
+</body>
+</html>
